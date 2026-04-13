@@ -1,0 +1,255 @@
+{% extends 'base.html' %}
+
+{% block title %}Profil - {{ user.nickname|default:"Gamer" }}{% endblock %}
+
+{% block content %}
+<div class="profile-container" style="max-width: 800px; margin: 0 auto; padding-bottom: 60px;">
+    
+    <div class="user-card">
+        <div class="profile-avatar">
+            {% if user.nickname %}
+                {{ user.nickname|slice:":1"|upper }}
+            {% else %}
+                <i class="fas fa-user-edit" style="font-size: 2.5rem; transform: rotate(5deg);"></i>
+            {% endif %}
+        </div>
+
+        {% if user.nickname %}
+            <h2 class="profile-name">{{ user.nickname }}</h2>
+        {% else %}
+            <div class="set-nickname-area">
+                <h2 class="profile-name" style="margin-bottom: 15px; font-size: 1.5rem;">Nickname o'rnating</h2>
+                <form action="{% url 'set_nickname' %}" method="POST" class="nickname-form">
+                    {% csrf_token %}
+                    <input type="text" name="nickname" placeholder="Gamer ismingiz..." required maxlength="20">
+                    <button type="submit" class="save-nick-btn">
+                        <i class="fas fa-check"></i>
+                    </button>
+                </form>
+            </div>
+        {% endif %}
+        
+        <p class="profile-email">{{ user.email }}</p>
+        
+        <div class="balance-box">
+            <span class="balance-label">Joriy balans</span>
+            <span class="balance-amount">{{ user.balance|floatformat:0 }} so'm</span>
+        </div>
+    </div>
+
+    <div class="section-title">
+        <i class="fas fa-history"></i>
+        <h3>Xaridlar tarixi</h3>
+    </div>
+    
+    {% if orders %}
+        <div class="orders-list">
+            {% for order in orders %}
+            <div class="order-item">
+                <div class="order-info">
+                    <h4 class="product-name">{{ order.product.name }}</h4>
+                    <p class="order-date">
+                        <i class="far fa-calendar-alt"></i> {{ order.created_at|date:"d-M, Y | H:i" }}
+                    </p>
+                    <div class="code-box-wrapper">
+                        <div class="code-display">{{ order.redeem_code.code }}</div>
+                        <button onclick="copyCode('{{ order.redeem_code.code }}', this)" class="copy-btn">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="order-status">
+                    <span class="order-price">-{{ order.price_paid|floatformat:0 }}</span>
+                    <span class="status-badge"><i class="fas fa-check-double"></i> OK</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <i class="fas fa-shopping-basket"></i>
+            <p>Sizda hali xaridlar mavjud emas.</p>
+            
+            <a href="{% url 'shop' %}" class="profile-shop-btn">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Do'konni ko'rish</span>
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    :root {
+        --accent: #38bdf8;
+        --card-bg: #1e293b;
+        --text-muted: #94a3b8;
+    }
+
+    /* USER CARD & AVATAR */
+    .user-card {
+        background: var(--card-bg);
+        padding: 40px 30px;
+        border-radius: 32px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        text-align: center;
+        margin-bottom: 40px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
+
+    .profile-avatar {
+        width: 100px; height: 100px;
+        background: linear-gradient(135deg, var(--accent), #0ea5e9);
+        border-radius: 28px;
+        display: flex; align-items: center; justify-content: center;
+        margin: 0 auto 20px;
+        font-size: 2.8rem; color: #0f172a; font-weight: 900;
+        border: 4px solid rgba(255,255,255,0.1);
+        transform: rotate(-5deg);
+    }
+
+    /* NICKNAME FORM */
+    .nickname-form {
+        display: flex; justify-content: center; gap: 10px;
+        margin-bottom: 20px; max-width: 320px; margin-left: auto; margin-right: auto;
+    }
+
+    .nickname-form input {
+        background: rgba(15, 23, 42, 0.6);
+        border: 2px solid #334155;
+        border-radius: 12px; padding: 10px 15px;
+        color: white; outline: none; width: 100%; transition: 0.3s;
+    }
+
+    .nickname-form input:focus { border-color: var(--accent); }
+
+/* NICKNAME SAQLASH TUGMASI (CHECKMARK) */
+.save-nick-btn {
+    background: var(--accent); 
+    color: #0f172a;
+    border: none; 
+    border-radius: 12px; 
+    padding: 0 20px;
+    font-size: 1.2rem;
+    font-weight: 800; 
+    cursor: pointer; 
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(56, 189, 248, 0.2);
+}
+
+/* SICHQONCHA BORGANDA (HOVER) */
+.save-nick-btn:hover {
+    transform: scale(1.1) rotate(5deg); /* Kattalashadi va bir oz buriladi */
+    background: #7dd3fc; /* Rang bir oz ochlashadi */
+    box-shadow: 0 8px 20px rgba(56, 189, 248, 0.4); /* Neon nuri */
+    filter: brightness(1.2);
+}
+
+/* BOSILGANDA (ACTIVE) */
+.save-nick-btn:active {
+    transform: scale(0.95);
+}
+
+/* NICKNAME INPUTINI HAM BIR OZ CHIROYLIK QILAMIZ */
+.nickname-form input:hover {
+    border-color: rgba(56, 189, 248, 0.5);
+}
+    .profile-name { margin: 0; font-size: 2rem; font-weight: 800; color: white; }
+    .profile-email { color: var(--text-muted); margin-bottom: 25px; font-size: 0.95rem; }
+
+    .balance-box {
+        display: inline-block; background: rgba(56, 189, 248, 0.05);
+        padding: 15px 40px; border-radius: 20px; border: 1px solid rgba(56, 189, 248, 0.2);
+    }
+
+    .balance-label { display: block; font-size: 0.8rem; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; font-weight: 700; margin-bottom: 5px; }
+    .balance-amount { font-size: 1.8rem; font-weight: 900; color: white; }
+
+    /* MEGA SHOP BUTTON (1.7x & UZUNCHOQ) */
+    .profile-shop-btn {
+        background: linear-gradient(135deg, var(--accent) 0%, #0ea5e9 100%);
+        color: #0f172a !important;
+        height: 68px;        /* Kattalashtirilgan bo'y */
+        padding: 0 85px;     /* Uzunchoq eni */
+        min-width: 420px;
+        border-radius: 20px;
+        font-weight: 850;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        font-size: 1.6rem;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        position: relative;
+        overflow: hidden;
+        margin: 30px auto 0;
+        border: none;
+        box-shadow: 0 14px 35px rgba(56, 189, 248, 0.3);
+    }
+
+    .profile-shop-btn i {
+        font-size: 2rem !important;
+        transform: translateY(4px); /* Ikonkani paslatish */
+        display: inline-block;
+    }
+
+    .profile-shop-btn:hover {
+        transform: translateY(-7px) scale(1.03);
+        box-shadow: 0 20px 45px rgba(56, 189, 248, 0.5);
+        filter: brightness(1.1);
+    }
+
+    .profile-shop-btn::after {
+        content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+        background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+        transition: 0.7s;
+    }
+
+    .profile-shop-btn:hover::after { left: 100%; }
+
+    /* ORDERS & OTHERS */
+    .section-title { display: flex; align-items: center; gap: 12px; margin: 30px 0 20px; padding-left: 10px; }
+    .section-title i { color: var(--accent); font-size: 1.4rem; }
+
+    .order-item {
+        background: var(--card-bg); padding: 20px; border-radius: 22px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        display: flex; justify-content: space-between; align-items: center;
+        transition: 0.3s ease; margin-bottom: 15px;
+    }
+
+    .order-item:hover { border-color: var(--accent); transform: translateX(5px); }
+    .product-name { margin: 0; color: var(--accent); font-size: 1.2rem; font-weight: 800; }
+    .code-display {
+        background: #0f172a; padding: 10px 15px; border-radius: 10px;
+        font-family: monospace; color: #10b981; font-weight: 800; border: 1px dashed #334155;
+    }
+
+    .empty-state {
+        text-align: center; padding: 60px 20px;
+        background: var(--card-bg); border-radius: 32px;
+        border: 2px dashed rgba(255, 255, 255, 0.1);
+    }
+
+    @media (max-width: 500px) {
+        .profile-shop-btn { min-width: 100%; padding: 0 20px; font-size: 1.2rem; }
+    }
+</style>
+
+<script>
+function copyCode(text, button) {
+    navigator.clipboard.writeText(text).then(() => {
+        const icon = button.querySelector('i');
+        button.style.background = '#10b981';
+        icon.className = 'fas fa-check';
+        setTimeout(() => {
+            button.style.background = '';
+            icon.className = 'fas fa-copy';
+        }, 2000);
+    });
+}
+</script>
+{% endblock %}

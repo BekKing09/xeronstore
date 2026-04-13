@@ -1,0 +1,276 @@
+{% extends "base.html" %}
+{% load account %}
+
+{% block title %}Kirish | Xeron Shop{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <i class="fas fa-user-shield"></i>
+            <h2>Tizimga kirish</h2>
+            <p>Xeron Shop hisobingizga kiring</p>
+        </div>
+        
+        <form method="POST" action="{% url 'account_login' %}" class="auth-form">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="non-field-error-box">
+                    {% for error in form.non_field_errors %}
+                        <p><i class="fas fa-exclamation-triangle"></i> Login yoki parol noto'g'ri!</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">
+                        {% if field.name == 'login' %}
+                            <i class="fas fa-envelope"></i> Email yoki Login
+                        {% elif field.name == 'password' %}
+                            <i class="fas fa-key"></i> Parol
+                        {% else %}
+                            {{ field.label }}
+                        {% endif %}
+                    </label>
+                    <div class="input-wrapper">
+                        {{ field }}
+                    </div>
+                    {% if field.errors %}
+                        {% for error in field.errors %}
+                            <span class="error-text"><i class="fas fa-exclamation-triangle"></i> {{ error }}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            {% if redirect_field_value %}
+                <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+            {% endif %}
+
+            <button type="submit" class="login-submit-btn">
+                Kirish <i class="fas fa-arrow-right"></i>
+            </button>
+        </form>
+        
+        <div class="login-footer">
+            <p>Akkauntingiz yo'qmi? <a href="{% url 'account_signup' %}">Ro'yxatdan o'ting</a></p>
+            <a href="{% url 'account_reset_password' %}" class="forgot-link">Parolni unutdingizmi?</a>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* KONTEYNER VA ASOSIY STRUKTURA */
+    .login-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: calc(100vh - 200px);
+        padding: 40px 15px;
+    }
+
+    .login-card {
+        max-width: 420px;
+        width: 100%;
+        background: var(--card-bg);
+        padding: 45px 35px;
+        border-radius: 28px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+        animation: slideUp 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    .login-header {
+        text-align: center;
+        margin-bottom: 35px;
+    }
+
+    .login-header i {
+        font-size: 3rem;
+        color: var(--accent);
+        margin-bottom: 15px;
+        filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.4));
+    }
+
+    .login-header h2 {
+        margin: 0;
+        font-size: 2rem;
+        font-weight: 900;
+        letter-spacing: -0.5px;
+    }
+
+    .login-header p {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        margin-top: 8px;
+    }
+
+    /* FORM ELEMENTLARI */
+    .auth-form {
+        display: flex;
+        flex-direction: column;
+        gap: 22px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .form-group label {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        padding-left: 5px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transition: 0.3s;
+    }
+
+    /* INPUT HOVER VA FOCUS */
+    .form-group input {
+        width: 100%;
+        background: #0f172a !important;
+        border: 2px solid #1e293b;
+        color: white !important;
+        padding: 15px 18px;
+        border-radius: 14px;
+        font-size: 1rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        outline: none;
+        box-sizing: border-box;
+    }
+
+    .form-group input:hover {
+        border-color: rgba(56, 189, 248, 0.3);
+        background: #162033 !important;
+    }
+
+    .form-group input:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 20px rgba(56, 189, 248, 0.15);
+        background: #1e293b !important;
+        transform: translateX(4px);
+    }
+
+    /* KATTALASHTIRILGAN KIRQISH TUGMASI (1.7x STYLE) */
+    .login-submit-btn {
+        background: linear-gradient(135deg, var(--accent) 0%, #0ea5e9 100%);
+        color: #0f172a;
+        border: none;
+        padding: 16px;
+        border-radius: 16px;
+        font-weight: 900;
+        font-size: 1.1rem;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 12px;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        margin-top: 10px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 20px rgba(56, 189, 248, 0.25);
+    }
+
+    .login-submit-btn:hover {
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: 0 20px 40px rgba(56, 189, 248, 0.45);
+        filter: brightness(1.1);
+    }
+
+    .login-submit-btn i {
+        transition: transform 0.4s ease;
+    }
+
+    .login-submit-btn:hover i {
+        transform: translateX(8px);
+    }
+
+    /* TUGMADAGI NURLI EFFEKT */
+    .login-submit-btn::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+        transition: 0.6s;
+    }
+
+    .login-submit-btn:hover::after {
+        left: 100%;
+    }
+
+    /* ERROR VA FOOTER */
+    .non-field-error-box {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid #ef4444;
+        color: #fca5a5;
+        padding: 14px;
+        border-radius: 14px;
+        margin-bottom: 20px;
+        font-size: 0.9rem;
+        text-align: center;
+        animation: shake 0.4s ease-in-out;
+    }
+
+    .login-footer {
+        text-align: center;
+        margin-top: 35px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .login-footer p { font-size: 0.95rem; color: var(--text-muted); }
+    
+    .login-footer a {
+        color: var(--accent);
+        text-decoration: none;
+        font-weight: 700;
+        transition: all 0.3s ease;
+        display: inline-block;
+    }
+
+    .login-footer a:hover {
+        color: #7dd3fc;
+        transform: translateY(-2px);
+        text-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
+    }
+
+    .forgot-link {
+        font-size: 0.85rem;
+        opacity: 0.6;
+        transition: 0.3s;
+    }
+
+    .forgot-link:hover {
+        opacity: 1 !important;
+        text-decoration: underline !important;
+    }
+
+    /* ANIMATSIYALAR */
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(40px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-6px); }
+        75% { transform: translateX(6px); }
+    }
+
+    @media (max-width: 480px) {
+        .login-card { padding: 35px 25px; }
+        .login-header h2 { font-size: 1.6rem; }
+    }
+</style>
+{% endblock %}

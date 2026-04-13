@@ -1,0 +1,203 @@
+{% extends 'base.html' %}
+
+{% block title %}Do'kon | Xeron Shop{% endblock %}
+
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<div class="shop-container">
+    {% if user.is_authenticated %}
+        
+        <div class="category-section">
+            <h2 class="section-title">O'yinni tanlang</h2>
+            <div class="category-scroll">
+                <a href="{% url 'shop' %}" class="category-card {% if not request.GET.category %}active{% endif %}">
+                    <div class="cat-icon"><i class="fas fa-th-large"></i></div>
+                    <span>Barchasi</span>
+                </a>
+                {% for cat in categories %}
+                <a href="?category={{ cat.id }}" class="category-card {% if request.GET.category == cat.id|stringformat:'s' %}active{% endif %}">
+                    {% if cat.image %}
+                        <img src="{{ cat.image.url }}" alt="{{ cat.name }}" class="cat-img">
+                    {% else %}
+                        <div class="cat-icon"><i class="fas fa-gamepad"></i></div>
+                    {% endif %}
+                    <span>{{ cat.name }}</span>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="products-grid">
+            {% for product in products %}
+                <div class="product-card">
+                    <div class="product-img-wrapper">
+                        {% if product.image %}
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-main-img">
+                        {% else %}
+                            <div class="no-img-placeholder"><i class="fas fa-image"></i></div>
+                        {% endif %}
+                        <div class="product-badge">{{ product.category.name }}</div>
+                    </div>
+
+                    <div class="product-info">
+                        <h3 class="product-name">{{ product.name }}</h3>
+                        <div class="product-price">
+                            <span class="price-value">{{ product.price|floatformat:0 }}</span>
+                            <span class="currency">X-coin</span>
+                        </div>
+                        
+                        <form action="{% url 'buy_product' product.id %}" method="POST" id="buy-form-{{ product.id }}">
+                            {% csrf_token %}
+                            <button type="button" class="buy-btn" onclick="confirmPurchase('{{ product.id }}', '{{ product.name }}', '{{ product.price|floatformat:0 }}')">
+                                <i class="fas fa-bolt"></i>
+                                <span>Sotib olish</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="empty-shop">
+                    <i class="fas fa-ghost"></i>
+                    <p>Ushbu bo'limda hozircha mahsulot yo'q.</p>
+                </div>
+            {% endfor %}
+        </div>
+
+    {% else %}
+        <div class="restricted-container">
+            <div class="restricted-card">
+                <div class="lock-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h2>Xavfsiz kirish</h2>
+                <p class="restricted-text">
+                    Xavfsizlik yuzasidan mahsulotlar va narxlar faqat ro'yxatdan o'tgan foydalanuvchilarga ko'rsatiladi.
+                </p>
+                
+                <div class="auth-buttons">
+                    <a href="{% url 'account_login' %}" class="btn-primary">
+                        <i class="fas fa-sign-in-alt"></i> Tizimga kirish
+                    </a>
+                    <a href="{% url 'account_signup' %}" class="btn-secondary">
+                        <i class="fas fa-user-plus"></i> Ro'yxatdan o'tish
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+function confirmPurchase(productId, productName, price) {
+    Swal.fire({
+        title: 'Tasdiqlaysizmi?',
+        html: `<div style="color: #cbd5e1; font-size: 0.95rem;"><b>${productName}</b> mahsulotini <b>${price} X-coin</b> evaziga sotib olmoqchimisiz?</div>`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#38bdf8',
+        cancelButtonColor: '#f87171',
+        confirmButtonText: 'Ha, sotib olaman!',
+        cancelButtonText: 'Bekor qilish',
+        background: '#1e293b',
+        color: '#ffffff',
+        backdrop: `rgba(15, 23, 42, 0.8)`
+    }).then((result) => {
+        if (result.isConfirmed) {
+            document.getElementById('buy-form-' + productId).submit();
+        }
+    })
+}
+</script>
+
+<style>
+    /* UMUMIY SHOP KONTEYNERI */
+    .shop-container { padding: 10px 0; min-height: 70vh; }
+
+    /* KATEGORIYA STILI */
+    .category-section { margin-bottom: 30px; }
+    .section-title { color: white; font-size: 1.1rem; font-weight: 800; margin-bottom: 15px; padding-left: 10px; border-left: 4px solid var(--accent); }
+    
+    .category-scroll {
+        display: flex; gap: 12px; overflow-x: auto; padding: 10px 5px 15px;
+        scrollbar-width: none;
+    }
+    .category-scroll::-webkit-scrollbar { display: none; }
+
+    .category-card {
+        flex: 0 0 auto; width: 100px; background: var(--card-bg, #1e293b);
+        border: 1px solid rgba(255,255,255,0.05); border-radius: 18px;
+        padding: 12px 8px; text-align: center; text-decoration: none; transition: 0.3s;
+    }
+    .category-card:hover { transform: translateY(-3px); border-color: var(--accent); }
+    .category-card.active { border-color: var(--accent); background: rgba(56, 189, 248, 0.1); }
+    
+    .cat-img { width: 45px; height: 45px; border-radius: 10px; object-fit: cover; margin-bottom: 8px; }
+    .cat-icon { font-size: 20px; color: var(--accent); margin-bottom: 8px; height: 45px; display: flex; align-items: center; justify-content: center; }
+    .category-card span { color: var(--text-muted); font-size: 0.75rem; font-weight: 700; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .category-card.active span { color: var(--accent); }
+
+    /* MAHSULOT KARTASI */
+    .products-grid { 
+        display: grid; 
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
+        gap: 15px; 
+    }
+    
+    @media (min-width: 768px) {
+        .products-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+        .shop-container { padding: 20px 0; }
+    }
+
+    .product-card {
+        background: var(--card-bg, #1e293b); border-radius: 18px;
+        border: 1px solid rgba(255,255,255,0.08); overflow: hidden; transition: 0.4s;
+        display: flex; flex-direction: column;
+    }
+    .product-card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+
+    .product-img-wrapper { position: relative; height: 140px; width: 100%; overflow: hidden; background: #0f172a; }
+    @media (min-width: 768px) { .product-img-wrapper { height: 180px; } }
+    
+    .product-main-img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
+    
+    .no-img-placeholder { height: 100%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; color: #1e293b; }
+
+    .product-badge {
+        position: absolute; top: 8px; right: 8px;
+        background: rgba(0,0,0,0.7); backdrop-filter: blur(5px);
+        color: var(--accent); font-size: 0.65rem; font-weight: 800;
+        padding: 3px 8px; border-radius: 6px;
+    }
+
+    .product-info { padding: 12px; flex-grow: 1; display: flex; flex-direction: column; }
+    .product-name { color: white; font-size: 0.95rem; font-weight: 700; margin-bottom: 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 2.4rem; }
+    
+    .product-price { margin-bottom: 12px; }
+    .price-value { color: var(--accent); font-size: 1.1rem; font-weight: 900; }
+    .currency { color: var(--text-muted); font-size: 0.7rem; margin-left: 2px; }
+
+    .buy-btn {
+        width: 100%; background: #2563eb; color: white; border: none;
+        padding: 10px; border-radius: 10px; font-weight: 700; cursor: pointer;
+        display: flex; align-items: center; justify-content: center; gap: 6px; transition: 0.3s;
+        font-size: 0.85rem;
+    }
+    .buy-btn:hover { background: var(--accent); color: #0f172a; }
+
+    /* RESTRICTED ACCESS */
+    .restricted-container { display: flex; justify-content: center; align-items: center; min-height: 50vh; padding: 20px; }
+    .restricted-card {
+        background: var(--card-bg, #1e293b); padding: 35px 20px; border-radius: 25px;
+        text-align: center; border: 1px solid rgba(255, 255, 255, 0.1);
+        max-width: 400px; width: 100%; box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+    }
+    .lock-icon { font-size: 3rem; color: var(--accent); margin-bottom: 15px; }
+
+    .auth-buttons { display: flex; flex-direction: column; gap: 12px; }
+    .btn-primary { background: var(--accent); color: #0f172a !important; text-decoration: none; padding: 14px; border-radius: 12px; font-weight: 800; }
+    .btn-secondary { border: 1px solid rgba(255,255,255,0.1); color: white !important; text-decoration: none; padding: 14px; border-radius: 12px; }
+
+    .empty-shop { grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-muted); }
+</style>
+{% endblock %}

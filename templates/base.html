@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Xeron Shop{% endblock %}</title>
+    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+    <style>
+        * { box-sizing: border-box; }
+
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent: #38bdf8;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --success: #10b981;
+            --error: #ef4444;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding-bottom: 90px; 
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* --- Animatsiyalangan Fon --- */
+        .stars, .stars2, .stars3 {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 300%;
+            z-index: -1;
+            background-image: radial-gradient(white 1px, transparent 1.5px);
+            background-repeat: repeat;
+            pointer-events: none;
+        }
+        .stars { background-size: 50px 50px; opacity: 0.3; animation: moveStars 100s linear infinite; }
+        .stars2 { background-size: 120px 120px; opacity: 0.2; animation: moveStars 150s linear infinite; }
+        .stars3 { background-size: 200px 200px; opacity: 0.1; animation: moveStars 200s linear infinite; }
+
+        @keyframes moveStars {
+            from { transform: translateY(0); }
+            to { transform: translateY(-1000px); }
+        }
+
+        /* --- Navbar --- */
+        nav {
+            background: rgba(30, 41, 59, 0.85);
+            backdrop-filter: blur(12px);
+            padding: 0.8rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo { font-size: 1.4rem; font-weight: 800; color: var(--accent); text-decoration: none; letter-spacing: 0.5px; flex-shrink: 0; }
+        .logo span { color: white; }
+
+        .nav-right { display: flex; align-items: center; gap: 12px; }
+        
+        .balance-badge {
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--accent);
+            padding: 6px 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            font-weight: 600;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* --- Plyus (+) Tugmasi --- */
+        .add-balance-btn {
+            text-decoration: none;
+            background: var(--accent);
+            color: var(--bg-color) !important;
+            border-radius: 4px;
+            padding: 0 6px;
+            font-weight: 800;
+            display: inline-block;
+            line-height: 1.2;
+            transition: all 0.3s ease;
+        }
+
+        .add-balance-btn:hover {
+            background-color: white !important;
+            transform: scale(1.2);
+            box-shadow: 0 0 10px var(--accent);
+        }
+
+        /* --- Chiqish (Logout) Tugmasi --- */
+        .logout-btn {
+            color: #f87171;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .logout-btn:hover {
+            color: #ef4444;
+            transform: rotate(15deg) scale(1.2);
+            filter: drop-shadow(0 0 5px #ef4444);
+        }
+
+        /* --- Container --- */
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 20px 15px; 
+            position: relative; 
+            z-index: 1; 
+        }
+
+        /* --- Mobil Footer Menyu --- */
+        .mobile-nav {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: rgba(30, 41, 59, 0.95);
+            backdrop-filter: blur(15px);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0 15px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            z-index: 1001;
+        }
+
+        .nav-item {
+            color: var(--text-muted);
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.7rem;
+            width: 25%;
+        }
+
+        .nav-item i { font-size: 1.4rem; margin-bottom: 4px; transition: 0.3s; }
+        .nav-item.active, .nav-item:hover { color: var(--accent); }
+
+        .btn {
+            background: var(--accent);
+            color: #0f172a;
+            padding: 10px 18px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            display: inline-block;
+            transition: 0.3s;
+        }
+
+        @media (max-width: 480px) {
+            .logo { font-size: 1.1rem; }
+            .balance-badge { font-size: 0.75rem; padding: 5px 10px; }
+            .container { padding: 15px 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars"></div><div class="stars2"></div><div class="stars3"></div>
+
+    <nav>
+        <a href="/" class="logo">XERON<span>SHOP</span></a>
+        <div class="nav-right">
+            {% if user.is_authenticated %}
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span class="balance-badge">
+                        <i class="fas fa-wallet"></i> {{ user.balance|floatformat:0 }}
+                        <a href="/pay/" class="add-balance-btn">+</a>
+                    </span>
+                    
+                    <a href="/accounts/logout/" class="logout-btn" title="Chiqish">
+                        <i class="fas fa-sign-out-alt fa-lg"></i>
+                    </a>
+                </div>
+            {% else %}
+                <a href="/accounts/login/" class="btn" style="padding: 6px 15px; font-size: 0.8rem;">Kirish</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <div class="container">
+        {% if messages %}
+            {% for message in messages %}
+                <div style="padding: 15px; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; background: {% if message.tags == 'success' %}rgba(16, 185, 129, 0.15){% else %}rgba(239, 68, 68, 0.15){% endif %}; border: 1px solid {% if message.tags == 'success' %}var(--success){% else %}var(--error){% endif %}; color: white;">
+                    <i class="fas {% if message.tags == 'success' %}fa-check-circle{% else %}fa-exclamation-circle{% endif %}"></i>
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <div class="mobile-nav">
+        <a href="/" class="nav-item">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="/shop/" class="nav-item">
+            <i class="fas fa-shopping-basket"></i>
+            <span>Shop</span>
+        </a>
+        <a href="/accounts/profile/" class="nav-item">
+            <i class="fas fa-user-circle"></i>
+            <span>Profil</span>
+        </a>
+    </div>
+</body>
+</html>

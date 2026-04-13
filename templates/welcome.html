@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+
+{% block title %}Bosh sahifa | Xeron Shop{% endblock %}
+
+{% block content %}
+<div class="hero-container">
+    <div class="hero-text-section">
+        <h1 class="main-title">Gamerlar uchun <span class="accent-text">maxsus</span></h1>
+        <p class="subtitle">Xeron Shop orqali eng arzon va tezkor xaridlarni amalga oshiring.</p>
+    </div>
+
+    <div class="welcome-card">
+        {% if not user.is_authenticated %}
+            <div class="user-avatar" style="background: rgba(248, 113, 113, 0.2); color: var(--error);">
+                <i class="fas fa-user-lock"></i>
+            </div>
+            <h3>Siz tizimga <span class="accent-text">kirmagansiz</span>!</h3>
+            <p style="margin: 15px 0 25px; color: var(--text-muted); font-size: 0.95rem;">
+                Mahsulotlarni ko'rish va xarid qilish uchun tizimga kiring yoki ro'yxatdan o'ting.
+            </p>
+            
+            <div class="auth-buttons-group">
+                <a href="{% url 'account_login' %}" class="shop-go-btn">
+                    <i class="fas fa-sign-in-alt"></i> Tizimga kirish
+                </a>
+                <a href="{% url 'account_signup' %}" class="secondary-btn">
+                    <i class="fas fa-user-plus"></i> Ro'yxatdan o'tish
+                </a>
+            </div>
+
+        {% else %}
+            <div class="user-avatar">
+                {# Nickname bo'lsa birinchi harfi, bo'lmasa Emailning birinchi harfi #}
+                {% firstof user.nickname|slice:":1" user.email|slice:":1" %}
+            </div>
+            <h3>Xush kelibsiz, <br><span class="accent-text" style="font-size: 1.2rem;">{% firstof user.nickname user.email %}</span>!</h3>
+            <p style="margin: 15px 0 25px; color: var(--text-muted);">
+                Siz tizimga muvaffaqiyatli kirdingiz. Do'kon bo'limida xaridlarni davom ettirishingiz mumkin.
+            </p>
+            
+            <a href="{% url 'shop' %}" class="shop-go-btn">
+                <i class="fas fa-shopping-bag"></i> Do'kon bo'limiga o'tish
+            </a>
+        {% endif %}
+    </div>
+
+    <div class="mini-features">
+        <div class="m-item"><i class="fas fa-bolt"></i> Tezkor</div>
+        <div class="m-item"><i class="fas fa-lock"></i> Xavfsiz</div>
+        <div class="m-item"><i class="fas fa-star"></i> Sifatli</div>
+    </div>
+</div>
+
+<style>
+    .hero-container {
+        text-align: center;
+        padding: 40px 15px;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .main-title { font-size: 2.5rem; font-weight: 900; margin-bottom: 15px; }
+    .accent-text { color: var(--accent); text-shadow: 0 0 20px rgba(56, 189, 248, 0.3); }
+    .subtitle { color: var(--text-muted); margin-bottom: 40px; }
+
+    /* KARTОCHKA STILI */
+    .welcome-card {
+        background: var(--card-bg);
+        padding: 40px 30px;
+        border-radius: 28px;
+        border: 1px solid rgba(255,255,255,0.08);
+        box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+        margin-bottom: 40px;
+    }
+
+    .user-avatar {
+        width: 70px; height: 70px;
+        background: linear-gradient(135deg, var(--accent), #0ea5e9);
+        color: #0f172a;
+        font-size: 1.8rem; font-weight: 900;
+        border-radius: 20px;
+        display: flex; align-items: center; justify-content: center;
+        margin: 0 auto 20px;
+        text-transform: uppercase;
+    }
+
+    .auth-buttons-group {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .shop-go-btn {
+        background: linear-gradient(to right, var(--accent), #0ea5e9);
+        color: #0f172a;
+        padding: 16px;
+        border-radius: 14px;
+        font-weight: 800;
+        text-decoration: none;
+        display: flex; align-items: center; justify-content: center; gap: 10px;
+        transition: 0.3s;
+    }
+
+    .secondary-btn {
+        background: rgba(255, 255, 255, 0.05);
+        color: white;
+        padding: 16px;
+        border-radius: 14px;
+        font-weight: 700;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: 0.3s;
+    }
+
+    .secondary-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .mini-features {
+        display: flex; justify-content: center; gap: 25px;
+        opacity: 0.7;
+    }
+
+    .m-item { font-size: 0.9rem; color: var(--text-muted); display: flex; align-items: center; gap: 8px; }
+    .m-item i { color: var(--accent); }
+    /* Asosiy tugma animatsiyasi */
+.shop-go-btn {
+    background: linear-gradient(to right, var(--accent), #0ea5e9);
+    color: #0f172a;
+    padding: 16px;
+    border-radius: 14px;
+    font-weight: 800;
+    text-decoration: none;
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    gap: 10px;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Elastik effekt */
+    position: relative;
+    overflow: hidden;
+}
+
+.shop-go-btn:hover {
+    transform: translateY(-5px) scale(1.03); /* Yuqoriga ko'tarilish va kattalashish */
+    box-shadow: 0 15px 30px rgba(56, 189, 248, 0.4); /* Neon nuri */
+    filter: brightness(1.1);
+}
+
+/* Tugma ustidan nur o'tishi effekti (Glint effect) */
+.shop-go-btn::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        120deg,
+        transparent,
+        rgba(255, 255, 255, 0.3),
+        transparent
+    );
+    transition: 0.5s;
+}
+
+.shop-go-btn:hover::after {
+    left: 100%;
+}
+
+/* Ikkinchi darajali (Ro'yxatdan o'tish) tugmasi */
+.secondary-btn {
+    background: rgba(255, 255, 255, 0.03);
+    color: white;
+    padding: 16px;
+    border-radius: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.secondary-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Mini ikonkalarga ham kichik animatsiya */
+.shop-go-btn i, .secondary-btn i {
+    transition: transform 0.3s ease;
+}
+
+.shop-go-btn:hover i {
+    transform: translateX(5px); /* Ikonka o'ngga siljiydi */
+}
+
+.secondary-btn:hover i {
+    transform: rotate(15deg) scale(1.2); /* Ikonka bir oz aylanadi */
+}
+</style>
+{% endblock %}

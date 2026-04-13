@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}Sahifa topilmadi | Xeron Shop{% endblock %}
+
+{% block content %}
+<style>
+    /* 404 tugmasi uchun maxsus effektlar */
+    .btn-404 {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 15px 35px;
+        font-size: 1.1rem;
+        background: var(--accent);
+        color: var(--bg-color) !important;
+        text-decoration: none;
+        font-weight: 800;
+        border-radius: 12px;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 0 10px 20px rgba(56, 189, 248, 0.2);
+    }
+
+    .btn-404:hover {
+        transform: scale(1.1) translateY(-5px);
+        background: white !important;
+        color: var(--accent) !important;
+        box-shadow: 0 15px 30px rgba(56, 189, 248, 0.5);
+    }
+
+    /* Ikonka animatsiyasi */
+    .btn-404 i {
+        transition: transform 0.3s ease;
+    }
+
+    .btn-404:hover i {
+        transform: rotate(-15deg) scale(1.2);
+    }
+
+    /* 404 yozuvini pulsatsiya qilish (qo'shimcha effekt) */
+    .error-code {
+        animation: glow 3s infinite alternate;
+    }
+
+    @keyframes glow {
+        from { text-shadow: 0 0 20px rgba(56, 189, 248, 0.5); }
+        to { text-shadow: 0 0 40px rgba(56, 189, 248, 0.8), 0 0 60px rgba(56, 189, 248, 0.3); }
+    }
+</style>
+
+<div style="text-align: center; padding: 100px 20px;">
+    <h1 class="error-code" style="font-size: 8rem; font-weight: 900; color: var(--accent); margin: 0;">404</h1>
+    <h2 style="color: white; font-size: 2rem; margin-bottom: 20px;">Kosmosda adashib qoldingiz!</h2>
+    <p style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 30px;">
+        Siz qidirayotgan sahifa mavjud emas yoki u boshqa galaktikaga ko'chirilgan.
+    </p>
+    
+    <a href="/" class="btn-404">
+        <i class="fas fa-home"></i> Bosh sahifaga qaytish
+    </a>
+</div>
+{% endblock %}
