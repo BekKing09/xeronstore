@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% block title %}Sozlamalar - Xeron Shop{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+    <h2 style="margin-bottom: 25px;">
+        <i class="fas fa-sliders" style="color: var(--accent); margin-right: 10px;"></i> 
+        Sozlamalar
+    </h2>
+
+    <div class="settings-group">
+        <a href="{% url 'password_change' %}" class="setting-item-link">
+            <div class="s-info">
+                <i class="fas fa-key"></i>
+                <div>
+                    <h4>Parolni o'zgartirish</h4>
+                    <p>Hisob xavfsizligini ta'minlash</p>
+                </div>
+            </div>
+            <i class="fas fa-chevron-right"></i>
+        </a>
+
+        <div class="setting-item-link delete-zone" onclick="showDeleteModal()">
+            <div class="s-info">
+                <i class="fas fa-user-slash"></i>
+                <div>
+                    <h4>Hisobni o'chirish</h4>
+                    <p>Barcha ma'lumotlar butunlay o'chadi</p>
+                </div>
+            </div>
+            <i class="fas fa-triangle-exclamation"></i>
+        </div>
+    </div>
+</div>
+
+<div class="confirm-modal" id="deleteModal">
+    <div style="font-size: 3rem; color: var(--error); margin-bottom: 15px;">
+        <i class="fas fa-radiation"></i>
+    </div>
+    <h3>Hisobni o'chirish?</h3>
+    <p style="color: var(--text-muted); font-size: 0.9rem;">
+        Diqqat! Bu amalni ortga qaytarib bo'lmaydi. Balansingiz va xaridlaringiz o'chib ketadi.
+    </p>
+    <div class="modal-btns">
+        <button class="modal-btn btn-cancel" onclick="closeDeleteModal()">Yo'q, qolsin</button>
+        <form action="{% url 'delete_account' %}" method="POST" style="flex: 1;">
+            {% csrf_token %}
+            <button type="submit" class="modal-btn btn-confirm">Ha, o'chirilsin</button>
+        </form>
+    </div>
+</div>
+
+<style>
+    .settings-group { 
+        background: var(--card-bg); 
+        border-radius: 25px; 
+        overflow: hidden; 
+        border: 1px solid rgba(255,255,255,0.05); 
+    }
+    
+    .setting-item-link {
+        display: flex; 
+        align-items: center; 
+        justify-content: space-between;
+        padding: 22px; 
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        text-decoration: none; 
+        color: white; 
+        transition: 0.3s;
+        cursor: pointer;
+    }
+    
+    .setting-item-link:hover { 
+        background: rgba(255,255,255,0.02); 
+    }
+    
+    .setting-item-link:last-child { border-bottom: none; }
+
+    .s-info { display: flex; align-items: center; gap: 15px; }
+    .s-info i { font-size: 1.2rem; color: var(--accent); width: 25px; text-align: center; }
+    .s-info h4 { margin: 0; font-size: 1rem; font-weight: 600; }
+    .s-info p { margin: 2px 0 0; font-size: 0.8rem; color: var(--text-muted); }
+
+    /* Delete Zone Style */
+    .delete-zone i { color: var(--error) !important; }
+    .delete-zone h4 { color: var(--error); }
+    .delete-zone:hover { background: rgba(239, 68, 68, 0.05); }
+
+    /* Modal (Base.html dagi modal uslubiga mos) */
+    .confirm-modal {
+        position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9);
+        background: var(--card-bg); padding: 30px; border-radius: 25px;
+        z-index: 3000; display: none; width: 90%; max-width: 400px;
+        text-align: center; border: 1px solid rgba(255,255,255,0.1);
+        box-shadow: 0 20px 60px rgba(0,0,0,0.8); transition: 0.3s;
+    }
+    .confirm-modal.active { display: block; transform: translate(-50%, -50%) scale(1); }
+    .modal-btns { display: flex; gap: 15px; margin-top: 25px; }
+    .modal-btn { flex: 1; padding: 12px; border-radius: 15px; border: none; font-weight: 700; cursor: pointer; transition: 0.3s; }
+    .btn-cancel { background: rgba(255,255,255,0.05); color: white; }
+    .btn-confirm { background: var(--error); color: white; }
+</style>
+
+<script>
+    function showDeleteModal() {
+        document.getElementById('deleteModal').classList.add('active');
+        const overlay = document.getElementById('menuOverlay');
+        overlay.style.display = 'block';
+        setTimeout(() => overlay.style.opacity = '1', 10);
+    }
+
+    function closeDeleteModal() {
+        document.getElementById('deleteModal').classList.remove('active');
+        const overlay = document.getElementById('menuOverlay');
+        overlay.style.opacity = '0';
+        setTimeout(() => { overlay.style.display = 'none'; }, 300);
+    }
+</script>
+{% endblock %}

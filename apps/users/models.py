@@ -1,8 +1,9 @@
-from django.contrib.auth.models import AbstractUser, BaseUserManager # BaseUserManager qo'shildi
+import random
+from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 from decimal import Decimal
+from django.utils import timezone
 
-# 1. Maxsus Manager yaratamiz
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         if not email:
@@ -16,19 +17,29 @@ class CustomUserManager(BaseUserManager):
     def create_superuser(self, email, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
-
-        if extra_fields.get('is_staff') is not True:
-            raise ValueError('Superuser is_staff=True bo\'lishi shart.')
-        if extra_fields.get('is_superuser') is not True:
-            raise ValueError('Superuser is_superuser=True bo\'lishi shart.')
-
         return self.create_user(email, password, **extra_fields)
 
-# 2. User modeli
+
 class User(AbstractUser):
-    username = None # Username o'chirilgan
+    username = None 
     nickname = models.CharField(max_length=50, blank=True, null=True)
     email = models.EmailField(unique=True)
+    
+
+    avatar = models.ImageField(
+        upload_to='avatars/', 
+        blank=True, 
+        null=True, 
+        verbose_name="Profil rasmi"
+    )
+    
+    uid = models.CharField(
+        max_length=7, 
+        unique=True, 
+        editable=False, 
+        verbose_name="UID"
+    )
+    
     balance = models.DecimalField(
         max_digits=12, 
         decimal_places=2, 
@@ -39,20 +50,27 @@ class User(AbstractUser):
     is_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    # Managerani modelga bog'laymiz
     objects = CustomUserManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = [] # Bu yer bo'sh bo'lishi kerak
+    REQUIRED_FIELDS = []
+
+    def save(self, *args, **kwargs):
+        if not self.uid:
+            while True:
+                potential_uid = str(random.randint(7000000, 7999999))
+                if not User.objects.filter(uid=potential_uid).exists():
+                    self.uid = potential_uid
+                    break
+        super().save(*args, **kwargs)
 
     def __str__(self):
-        return self.email
+        return f"{self.email} ({self.uid})"
 
     class Meta:
         verbose_name = "Foydalanuvchi"
         verbose_name_plural = "Foydalanuvchilar"
 
-### tranzaksiyalarni saqlash
 
 class Transaction(models.Model):
     TRANSACTION_TYPES = (
@@ -68,10 +86,9 @@ class Transaction(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.user.phone_number} | {self.type} | {self.amount}"
+        # phone_number o'rniga email va uid ishlatiladi
+        return f"{self.user.email} | {self.type} | {self.amount}"
 
-
-### sms kod
 
 class SMSCode(models.Model):
     phone_number = models.CharField(max_length=15)
@@ -80,8 +97,6 @@ class SMSCode(models.Model):
     is_used = models.BooleanField(default=False)
 
     def is_expired(self):
-        # Kod 2 daqiqa davomida amal qiladi
-        from django.utils import timezone
         return (timezone.now() - self.created_at).seconds > 120
 
     class Meta:

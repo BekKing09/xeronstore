@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% block title %}Manager Panel - Xeron Shop{% endblock %}
+
+{% block content %}
+<div style="max-width: 1000px; margin: 0 auto; padding: 20px;">
+    
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px;">
+        <h2><i class="fas fa-users-cog" style="color: var(--accent);"></i> Manager Panel</h2>
+        <div style="color: var(--text-muted); font-size: 0.9rem;">
+            <i class="fas fa-shield-alt" style="color: var(--success);"></i> Xavfsiz to'ldirish tizimi
+        </div>
+    </div>
+
+    <div style="background: var(--card-bg); border-radius: 25px; padding: 25px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 30px;">
+        <h4 style="margin-top: 0; margin-bottom: 15px; color: var(--accent);">Balansni UID orqali to'ldirish</h4>
+        
+        <form action="{% url 'manager_panel' %}" method="POST" style="display: flex; flex-wrap: wrap; gap: 15px; align-items: center;">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add_balance">
+            
+            <div style="flex: 1; min-width: 150px;">
+                <label style="font-size: 0.8rem; color: var(--text-muted);">Foydalanuvchi UID:</label>
+                <input type="number" name="uid" id="uidInput" placeholder="Masalan: 7000000" required
+                       style="width: 100%; padding: 12px; background: #0f172a; border: 1px solid #334155; border-radius: 12px; color: white; outline: none;">
+            </div>
+
+            <div style="flex: 1; min-width: 150px;">
+                <label style="font-size: 0.8rem; color: var(--text-muted);">Summa:</label>
+                <input type="number" name="amount" placeholder="Summa (so'm)" required
+                       style="width: 100%; padding: 12px; background: #0f172a; border: 1px solid #334155; border-radius: 12px; color: white; outline: none;">
+            </div>
+            
+            <div style="flex: 1; min-width: 180px; position: relative;">
+                <label style="font-size: 0.8rem; color: var(--text-muted);">Xavfsizlik paroli:</label>
+                <div style="position: relative; display: flex; align-items: center;">
+                    <input type="password" name="security_password" id="securityPassword" placeholder="parolni kiriting" required
+                           style="width: 100%; padding: 12px 40px 12px 12px; background: #0f172a; border: 1px solid #334155; border-radius: 12px; color: white; outline: none;">
+                    
+                    <span onclick="togglePassword('securityPassword', 'eyeIcon')" style="position: absolute; right: 12px; cursor: pointer; color: var(--text-muted);">
+                        <i class="fas fa-eye" id="eyeIcon"></i>
+                    </span>
+                </div>
+            </div>
+            
+            <div style="flex: 1; min-width: 200px;">
+                <label style="font-size: 0.8rem; color: var(--text-muted);">Izoh:</label>
+                <input type="text" name="description" placeholder="Admin tomonidan to'ldirildi"
+                       style="width: 100%; padding: 12px; background: #0f172a; border: 1px solid #334155; border-radius: 12px; color: white; outline: none;">
+            </div>
+            
+            <button type="submit" style="background: var(--success); border: none; padding: 13px 20px; border-radius: 12px; color: #0f172a; font-weight: 800; cursor: pointer; margin-top: 18px;">
+                <i class="fas fa-plus"></i> Qo'shish
+            </button>
+        </form>
+    </div>
+
+    <div id="userInfoBlock" style="background: rgba(16, 185, 129, 0.05); border: 1px solid var(--success); padding: 15px 20px; border-radius: 20px; margin-bottom: 30px; display: none; color: #34d399;">
+        <i class="fas fa-user-check"></i> <strong>Topildi:</strong> 
+        <span id="userInfoText"></span>
+    </div>
+    <div id="errorBlock" style="background: rgba(239, 68, 68, 0.05); border: 1px solid var(--error); padding: 15px 20px; border-radius: 20px; margin-bottom: 30px; display: none; color: #f87171;">
+        <i class="fas fa-exclamation-triangle"></i> <span id="errorText"></span>
+    </div>
+
+    <div style="background: var(--card-bg); border-radius: 25px; overflow-x: auto; border: 1px solid rgba(255,255,255,0.05);">
+        <table style="width: 100%; border-collapse: collapse; text-align: left; color: white; min-width: 600px;">
+            <thead>
+                <tr style="background: rgba(255, 255, 255, 0.02); border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                    <th style="padding: 18px 25px;">UID</th>
+                    <th style="padding: 18px 25px;">Nickname</th>
+                    <th style="padding: 18px 25px;">Joriy Balans</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in users %}
+                <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.03);">
+                    <td style="padding: 18px 25px; font-weight: 700;">
+                        ID: {{ u.uid }}
+                    </td>
+                    <td style="padding: 18px 25px; color: var(--text-muted);">
+                        {{ u.nickname|default:"Kiritilmagan" }}
+                    </td>
+                    <td style="padding: 18px 25px; color: var(--accent); font-weight: 800;">
+                        {{ u.balance|floatformat:0 }} so'm
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // UID orqali userni tekshirish
+    const uidInput = document.getElementById('uidInput');
+    const userInfoBlock = document.getElementById('userInfoBlock');
+    const userInfoText = document.getElementById('userInfoText');
+    const errorBlock = document.getElementById('errorBlock');
+    const errorText = document.getElementById('errorText');
+
+    uidInput.addEventListener('input', function() {
+        const uid = this.value;
+        if (uid.length > 0) {
+            fetch(`/manager/get-user-info/?uid=${uid}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        userInfoBlock.style.display = 'block';
+                        errorBlock.style.display = 'none';
+                        userInfoText.innerHTML = `Foydalanuvchi: <i>${data.nickname}</i> | Balans: <b>${data.balance} so'm</b>`;
+                    } else {
+                        userInfoBlock.style.display = 'none';
+                        errorBlock.style.display = 'block';
+                        errorText.innerText = data.message;
+                    }
+                });
+        } else {
+            userInfoBlock.style.display = 'none';
+            errorBlock.style.display = 'none';
+        }
+    });
+</script>
+{% endblock %}

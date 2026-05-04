@@ -25,30 +25,26 @@ def shop_page(request):
         'products': products
     })
 
+from apps.users.models import Transaction # Model nomini tekshiring
+
 @login_required
 def buy_product(request, product_id):
     product = get_object_or_404(Product, id=product_id, is_active=True)
     user = request.user
 
-    # 1. Balansni tekshirish
     if user.balance < product.price:
-        messages.error(request, "Mablag' yetarli emas! Iltimos, balansni to'ldiring.")
+        messages.error(request, "Mablag' yetarli emas!")
         return redirect('shop')
 
-    # 2. Bazadan bitta ishlatilmagan kodni olish
     code_to_sell = product.codes.filter(is_used=False).first()
-    
     if not code_to_sell:
         messages.error(request, "Hozircha bu mahsulotdan qolmagan.")
         return redirect('shop')
 
-    # Tranzaksiya: Pul ayirish va kodni berish bitta jarayonda bo'lishi shart
     with transaction.atomic():
-        # 3. Foydalanuvchi balansidan pul ayirish
         user.balance -= product.price
         user.save()
 
-        # 4. Kodni ishlatilgan deb belgilash va Order yaratish
         code_to_sell.is_used = True
         code_to_sell.save()
 
@@ -59,8 +55,15 @@ def buy_product(request, product_id):
             price_paid=product.price
         )
 
-        messages.success(request, f"Xarid muvaffaqiyatli! Sizning kodingiz: {code_to_sell.code}")
+        # MANA BU QISMNI QO'SHING:
+        Transaction.objects.create(
+            user=user,
+            amount=-product.price, # Minus bilan (Chiqim)
+            description=f"{product.name} xaridi"
+        )
+
+        messages.success(request, f"Xarid muvaffaqiyatli! Kod: {code_to_sell.code}")
     
-    return redirect('shop')
+    return redirect('profile') # Xariddan keyin profilga o'tgani ma'qul, kodni ko'rishi uchun
 def pay_view(request):
     return render(request, 'pay.html')

@@ -1,4 +1,5 @@
-{% load static %} <!DOCTYPE html>
+{% load static %}
+<!DOCTYPE html>
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
@@ -6,10 +7,9 @@
     <title>{% block title %}Xeron Shop{% endblock %}</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="shortcut icon" type="image/png" href="{% static 'images/logo.png' %}?v=1.1">
-
+    
     <style>
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         :root {
             --bg-color: #0f172a;
@@ -33,193 +33,265 @@
 
         /* --- Animatsiyalangan Fon --- */
         .stars, .stars2, .stars3 {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 300%;
-            z-index: -1;
+            position: fixed; top: 0; left: 0; width: 100%; height: 300%;
+            z-index: -1; pointer-events: none;
             background-image: radial-gradient(white 1px, transparent 1.5px);
             background-repeat: repeat;
-            pointer-events: none;
         }
         .stars { background-size: 50px 50px; opacity: 0.3; animation: moveStars 100s linear infinite; }
         .stars2 { background-size: 120px 120px; opacity: 0.2; animation: moveStars 150s linear infinite; }
         .stars3 { background-size: 200px 200px; opacity: 0.1; animation: moveStars 200s linear infinite; }
+        @keyframes moveStars { from { transform: translateY(0); } to { transform: translateY(-1000px); } }
 
-        @keyframes moveStars {
-            from { transform: translateY(0); }
-            to { transform: translateY(-1000px); }
+        /* --- Xabarlar (Alerts) --- */
+        .messages-container {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            z-index: 9999; width: 90%; max-width: 400px;
         }
+        .alert {
+            padding: 15px 20px; border-radius: 16px; margin-bottom: 10px;
+            display: flex; align-items: center; gap: 12px; color: white;
+            backdrop-filter: blur(10px); animation: slideDown 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+        }
+        .alert.success { background: rgba(16, 185, 129, 0.9); border: 1px solid var(--success); }
+        .alert.error { background: rgba(239, 68, 68, 0.9); border: 1px solid var(--error); }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
 
         /* --- Navbar --- */
         nav {
             background: rgba(30, 41, 59, 0.85);
             backdrop-filter: blur(12px);
             padding: 0.8rem 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            display: flex; justify-content: space-between; align-items: center;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
+            position: sticky; top: 0; z-index: 1000;
         }
-
-        .logo { font-size: 1.4rem; font-weight: 800; color: var(--accent); text-decoration: none; letter-spacing: 0.5px; flex-shrink: 0; }
+        .logo { font-size: 1.4rem; font-weight: 800; color: var(--accent); text-decoration: none; letter-spacing: 0.5px; }
         .logo span { color: white; }
 
-        .nav-right { display: flex; align-items: center; gap: 12px; }
-        
+        .nav-right { display: flex; align-items: center; gap: 15px; }
         .balance-badge {
             background: rgba(56, 189, 248, 0.1);
-            color: var(--accent);
-            padding: 6px 12px;
-            border-radius: 12px;
+            color: var(--accent); padding: 6px 12px; border-radius: 12px;
             border: 1px solid rgba(56, 189, 248, 0.3);
-            font-weight: 600;
-            font-size: 0.85rem;
-            white-space: nowrap;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            font-weight: 600; font-size: 0.85rem;
+            display: flex; align-items: center; gap: 8px;
         }
 
-        /* --- Plyus (+) Tugmasi --- */
+        /* --- Balans + tugmasi hoveri --- */
         .add-balance-btn {
-            text-decoration: none;
-            background: var(--accent);
+            text-decoration: none; 
+            background: var(--accent); 
             color: var(--bg-color) !important;
-            border-radius: 4px;
-            padding: 0 6px;
-            font-weight: 800;
+            border-radius: 4px; 
+            padding: 0 6px; 
+            font-weight: 800; 
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             display: inline-block;
-            line-height: 1.2;
-            transition: all 0.3s ease;
         }
-
         .add-balance-btn:hover {
-            background-color: white !important;
-            transform: scale(1.2);
+            transform: scale(1.2) rotate(90deg);
+            background: #7dd3fc;
             box-shadow: 0 0 10px var(--accent);
         }
 
-        /* --- Chiqish (Logout) Tugmasi --- */
-        .logout-btn {
-            color: #f87171;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
+        /* --- Hamburger Trigger (3 ta chiziq) --- */
+        .menu-trigger { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 4.5px; 
+            cursor: pointer; 
+            padding: 5px; 
+        }
+        .menu-trigger span { 
+            width: 22px; 
+            height: 2.5px; 
+            background: white; 
+            border-radius: 2px; 
+            transition: 0.3s; 
+        }
+        .menu-trigger:hover span { background: var(--accent); }
+
+        /* --- Bottom Sheet Menu --- */
+        .menu-overlay {
+            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px); z-index: 2000; display: none; opacity: 0; transition: 0.3s;
+        }
+        .bottom-menu {
+            position: fixed; bottom: -100%; left: 0; right: 0;
+            background: var(--card-bg); border-radius: 25px 25px 0 0;
+            z-index: 2001; padding: 20px;
+            transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border-top: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5);
+        }
+        .bottom-menu.active { bottom: 0; }
+        .menu-handle { width: 45px; height: 5px; background: rgba(255,255,255,0.2); border-radius: 10px; margin: 0 auto 25px; }
+
+        /* --- Menu Linklar va ZOR HOVER --- */
+        .menu-link {
+            display: flex; align-items: center; gap: 15px; padding: 16px;
+            color: white; text-decoration: none; font-weight: 600;
+            border-radius: 18px; margin-bottom: 8px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid transparent;
+        }
+        .menu-link:hover {
+            background: rgba(56, 189, 248, 0.1); 
+            border-color: rgba(56, 189, 248, 0.2);
+            color: var(--accent); 
+            padding-left: 25px;
+        }
+        .menu-link i { 
+            width: 24px; font-size: 1.25rem; color: var(--accent); 
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        }
+        .menu-link:hover i { 
+            transform: scale(1.2) rotate(-12deg); 
+            filter: drop-shadow(0 0 8px var(--accent));
         }
 
-        .logout-btn:hover {
-            color: #ef4444;
-            transform: rotate(15deg) scale(1.2);
-            filter: drop-shadow(0 0 5px #ef4444);
+        /* Logout uchun maxsus hover */
+        .logout-link:hover {
+            background: rgba(239, 68, 68, 0.1) !important;
+            border-color: rgba(239, 68, 68, 0.2) !important;
+            color: var(--error) !important;
         }
+        .logout-link:hover i { color: var(--error) !important; filter: drop-shadow(0 0 8px var(--error)) !important; }
 
-        /* --- Container --- */
-        .container { 
-            max-width: 1200px; 
-            margin: 0 auto; 
-            padding: 20px 15px; 
-            position: relative; 
-            z-index: 1; 
+        /* --- Modal va boshqalar --- */
+        .confirm-modal {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9);
+            background: var(--card-bg); padding: 30px; border-radius: 25px;
+            z-index: 3000; display: none; width: 90%; max-width: 400px;
+            text-align: center; border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8); transition: 0.3s;
         }
+        .confirm-modal.active { display: block; transform: translate(-50%, -50%) scale(1); }
+        .modal-btns { display: flex; gap: 15px; margin-top: 25px; }
+        .modal-btn { flex: 1; padding: 12px; border-radius: 15px; border: none; font-weight: 700; cursor: pointer; transition: 0.3s; }
+        .btn-cancel { background: rgba(255,255,255,0.05); color: white; }
+        .btn-confirm { background: var(--error); color: white; }
 
-        /* --- Mobil Footer Menyu --- */
         .mobile-nav {
-            position: fixed;
-            bottom: 0; left: 0; right: 0;
-            background: rgba(30, 41, 59, 0.95);
-            backdrop-filter: blur(15px);
-            display: flex;
-            justify-content: space-around;
-            padding: 10px 0 15px;
-            border-top: 1px solid rgba(255,255,255,0.05);
-            z-index: 1001;
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: rgba(30, 41, 59, 0.95); backdrop-filter: blur(15px);
+            display: flex; justify-content: space-around; padding: 12px 0 25px;
+            border-top: 1px solid rgba(255,255,255,0.05); z-index: 1001;
         }
+        .nav-item { color: var(--text-muted); text-decoration: none; display: flex; flex-direction: column; align-items: center; font-size: 0.75rem; width: 33.3%; }
+        .nav-item i { font-size: 1.4rem; margin-bottom: 5px; }
+        .nav-item.active { color: var(--accent); }
 
-        .nav-item {
-            color: var(--text-muted);
-            text-decoration: none;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-size: 0.7rem;
-            width: 25%;
-        }
-
-        .nav-item i { font-size: 1.4rem; margin-bottom: 4px; transition: 0.3s; }
-        .nav-item.active, .nav-item:hover { color: var(--accent); }
-
-        .btn {
-            background: var(--accent);
-            color: #0f172a;
-            padding: 10px 18px;
-            border-radius: 10px;
-            text-decoration: none;
-            font-weight: 700;
-            border: none;
-            cursor: pointer;
-            display: inline-block;
-            transition: 0.3s;
-        }
-
-        @media (max-width: 480px) {
-            .logo { font-size: 1.1rem; }
-            .balance-badge { font-size: 0.75rem; padding: 5px 10px; }
-            .container { padding: 15px 10px; }
-        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px 15px; position: relative; z-index: 1; }
     </style>
 </head>
 <body>
     <div class="stars"></div><div class="stars2"></div><div class="stars3"></div>
 
+    {% if messages %}
+    <div class="messages-container">
+        {% for message in messages %}
+            <div class="alert {{ message.tags }}">
+                <i class="fas {% if message.tags == 'success' %}fa-check-circle{% else %}fa-exclamation-circle{% endif %}"></i>
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
     <nav>
         <a href="/" class="logo">XERON<span>SHOP</span></a>
         <div class="nav-right">
             {% if user.is_authenticated %}
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <span class="balance-badge">
-                        <i class="fas fa-wallet"></i> {{ user.balance|floatformat:0 }}
-                        <a href="/pay/" class="add-balance-btn">+</a>
-                    </span>
-                    
-                    <a href="/accounts/logout/" class="logout-btn" title="Chiqish">
-                        <i class="fas fa-sign-out-alt fa-lg"></i>
-                    </a>
+                <span class="balance-badge">
+                    <i class="fas fa-wallet"></i> {{ user.balance|floatformat:0 }}
+                    <a href="/pay/" class="add-balance-btn">+</a>
+                </span>
+                <div class="menu-trigger" onclick="toggleMenu()">
+                    <span></span><span></span><span></span>
                 </div>
             {% else %}
-                <a href="/accounts/login/" class="btn" style="padding: 6px 15px; font-size: 0.8rem;">Kirish</a>
+                <a href="/accounts/login/" style="background:var(--accent); color:var(--bg-color); padding: 7px 15px; border-radius:8px; text-decoration:none; font-weight:700; font-size:0.8rem;">Kirish</a>
             {% endif %}
         </div>
     </nav>
 
-    <div class="container">
-        {% if messages %}
-            {% for message in messages %}
-                <div style="padding: 15px; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; background: {% if message.tags == 'success' %}rgba(16, 185, 129, 0.15){% else %}rgba(239, 68, 68, 0.15){% endif %}; border: 1px solid {% if message.tags == 'success' %}var(--success){% else %}var(--error){% endif %}; color: white;">
-                    <i class="fas {% if message.tags == 'success' %}fa-check-circle{% else %}fa-exclamation-circle{% endif %}"></i>
-                    {{ message }}
-                </div>
-            {% endfor %}
-        {% endif %}
+    <div class="menu-overlay" id="menuOverlay" onclick="closeAll()"></div>
+    
+    <div class="bottom-menu" id="bottomMenu">
+        <div class="menu-handle"></div>
+        <div class="menu-content">
+            <a href="{% url 'transactions' %}" class="menu-link"><i class="fas fa-history"></i><span>Kirim-chiqim</span></a>
+            <a href="/accounts/profile/edit/" class="menu-link"><i class="fas fa-user-pen"></i><span>Profilni tahrirlash</span></a>
+            <a href="/settings/" class="menu-link"><i class="fas fa-sliders"></i><span>Sozlamalar</span></a>
+            <div style="height:1px; background:rgba(255,255,255,0.1); margin:10px 0;"></div>
+            <a href="javascript:void(0)" class="menu-link logout-link" onclick="showConfirm()"><i class="fas fa-right-from-bracket"></i><span>Chiqish</span></a>
+        </div>
+    </div>
 
+    <div class="confirm-modal" id="logoutModal">
+        <div style="font-size: 3rem; color: var(--error); margin-bottom: 15px;"><i class="fas fa-circle-exclamation"></i></div>
+        <h3>Tizimdan chiqish</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Profilingizdan chiqmoqchimisiz?</p>
+        <div class="modal-btns">
+            <button class="modal-btn btn-cancel" onclick="closeAll()">Bekor qilish</button>
+            <a href="/accounts/logout/" class="modal-btn btn-confirm" style="text-decoration:none; display:flex; align-items:center; justify-content:center;">Chiqish</a>
+        </div>
+    </div>
+
+    <div class="container">
         {% block content %}{% endblock %}
     </div>
 
     <div class="mobile-nav">
-        <a href="/" class="nav-item">
-            <i class="fas fa-home"></i>
-            <span>Home</span>
-        </a>
-        <a href="/shop/" class="nav-item">
-            <i class="fas fa-shopping-basket"></i>
-            <span>Shop</span>
-        </a>
-        <a href="/accounts/profile/" class="nav-item">
-            <i class="fas fa-user-circle"></i>
-            <span>Profil</span>
-        </a>
+        <a href="/" class="nav-item {% if request.path == '/' %}active{% endif %}"><i class="fas fa-house"></i><span>Home</span></a>
+        <a href="/shop/" class="nav-item {% if '/shop/' in request.path %}active{% endif %}"><i class="fas fa-bag-shopping"></i><span>Shop</span></a>
+        <a href="/accounts/profile/" class="nav-item {% if '/profile/' in request.path %}active{% endif %}"><i class="fas fa-circle-user"></i><span>Profil</span></a>
     </div>
+
+    <script>
+        const menu = document.getElementById('bottomMenu');
+        const overlay = document.getElementById('menuOverlay');
+        const modal = document.getElementById('logoutModal');
+
+        function toggleMenu() {
+            overlay.style.display = 'block';
+            setTimeout(() => { overlay.style.opacity = '1'; menu.classList.add('active'); }, 10);
+        }
+
+        function showConfirm() {
+            menu.classList.remove('active');
+            setTimeout(() => { modal.classList.add('active'); }, 200);
+        }
+
+        function closeAll() {
+            menu.classList.remove('active');
+            modal.classList.remove('active');
+            overlay.style.opacity = '0';
+            setTimeout(() => { overlay.style.display = 'none'; }, 300);
+        }
+
+        // Parolni ko'rsatish/yashirish funksiyasi
+        function togglePassword(inputId, iconId) {
+            const passwordInput = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                icon.className = "fas fa-eye-slash";
+            } else {
+                passwordInput.type = "password";
+                icon.className = "fas fa-eye";
+            }
+        }
+
+        setTimeout(() => {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(a => { a.style.opacity = '0'; setTimeout(() => a.remove(), 500); });
+        }, 5000);
+    </script>
 </body>
 </html>

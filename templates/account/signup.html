@@ -29,8 +29,15 @@
                         {% endif %}
                         {{ field.label }}
                     </label>
-                    <div class="input-wrapper">
+                    <div class="input-wrapper" style="position: relative;">
                         {{ field }}
+                        
+                        {% if "parol" in field.label|lower or "password" in field.label|lower %}
+                            <span onclick="togglePassword('{{ field.id_for_label }}', 'toggle-{{ field.id_for_label }}')" 
+                                  style="position: absolute; right: 18px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted); z-index: 10;">
+                                <i id="toggle-{{ field.id_for_label }}" class="fas fa-eye"></i>
+                            </span>
+                        {% endif %}
                     </div>
                     {% if field.errors %}
                         {% for error in field.errors %}
@@ -123,7 +130,7 @@
         transform: translateX(4px);
     }
 
-    /* TUGMA - 1.7X EFFEKTI BILAN */
+    /* TUGMA */
     .submit-btn {
         background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
         color: #0f172a;
@@ -154,7 +161,7 @@
     .auth-footer { text-align: center; margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px; }
     .auth-footer a { color: #38bdf8; text-decoration: none; font-weight: 700; }
     
-    /* PASSWORD HELP TEXT (kichraytirish uchun) */
+    /* PASSWORD HELP TEXT */
     .form-group ul { 
         font-size: 0.75rem; 
         color: #64748b; 

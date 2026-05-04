@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-v2vyp91rb0%!4tteqqm(-$c!6(xz0#c2grdj#^752@x-9dbp=&'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'apps.shop',
     'apps.payments',
     'apps.orders',
+    'apps.accounts',
 
     # allauth apps
     'allauth',
@@ -117,8 +118,12 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'xeronshop',
+        'USER': 'bekking',
+        'PASSWORD': '07behruzbek',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
@@ -147,7 +152,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Tashkent'
 
 USE_I18N = True
 

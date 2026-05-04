@@ -57,3 +57,4 @@ def set_nickname(request):
             user.save()
             messages.success(request, f"Nickname muvaffaqiyatli o'rnatildi: {nickname}")
     return redirect('profile') # 'profile' o'rniga profilingizni url nomini yozing
+
